@@ -17,6 +17,7 @@ import android.view.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.exotic.dualcamera.util.*
 import java.io.File
 import java.lang.NullPointerException
 import java.lang.RuntimeException
@@ -168,7 +169,9 @@ class CameraActivity : Fragment(), View.OnClickListener,
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        mFile = File(activity?.getExternalFilesDir(null), IMG_NAME)
+        mFile = File(activity?.getExternalFilesDir(null),
+            IMG_NAME
+        )
     }
 
     override fun onResume() {
@@ -195,7 +198,9 @@ class CameraActivity : Fragment(), View.OnClickListener,
             ConfirmationDialog().show(childFragmentManager, FRAGMENT_DIALOG)
         }
         else{
-            requestPermissions(arrayOf(Manifest.permission.CAMERA), REQUEST_CAMERA_PERMISSION)
+            requestPermissions(arrayOf(Manifest.permission.CAMERA),
+                REQUEST_CAMERA_PERMISSION
+            )
         }
     }
 

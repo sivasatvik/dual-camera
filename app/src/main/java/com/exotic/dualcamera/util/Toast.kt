@@ -1,4 +1,4 @@
-package com.exotic.dualcamera
+package com.exotic.dualcamera.util
 
 import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
