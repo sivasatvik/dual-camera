@@ -24,6 +24,7 @@ import java.lang.RuntimeException
 import java.util.*
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
+import kotlin.collections.ArrayList
 
 class CameraActivity : Fragment(), View.OnClickListener,
     ActivityCompat.OnRequestPermissionsResultCallback{
@@ -235,14 +236,14 @@ class CameraActivity : Fragment(), View.OnClickListener,
                     setOnImageAvailableListener(onImageAvailableListener, mBackgroundHandler)
                 }
 
-                val rotation = activity.windowManager.defaultDisplay.rotation
+                val rotation = activity!!.windowManager.defaultDisplay.rotation
 
                 mSensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION)!!
 
                 val swapDimension = isDimensionSwap(rotation)
 
                 val displaySize = Point()
-                activity.windowManager.defaultDisplay.getSize(displaySize)
+                activity!!.windowManager.defaultDisplay.getSize(displaySize)
                 val rotateWidth = if(swapDimension) height else width
                 val rotateHeight = if(swapDimension) width else height
                 var maxWidth = if (swapDimension) displaySize.y else displaySize.x
@@ -564,7 +565,34 @@ class CameraActivity : Fragment(), View.OnClickListener,
             aspectRatio: Size): Size {
 
             //TODO: write the flow for choosing best size
-            return choices[0]
+            val usable = ArrayList<Size>()
+            val unusable = ArrayList<Size>()
+            val width = aspectRatio.width
+            val height = aspectRatio.height
+
+            for(c in choices){
+                if(c.width <= maxWidth && c.height <= maxHeight &&
+                        c.height == c.width * (height / width)){
+                    if(c.width >= textureViewWidth && c.height >= textureViewHeight){
+                        usable.add(c)
+                    }
+                    else{
+                        unusable.add(c)
+                    }
+
+                }
+            }
+
+            if(usable.size >= 1){
+                return Collections.min(usable, CompareSizesByArea())
+            }
+            else if(unusable.size >= 1){
+                return Collections.max(unusable, CompareSizesByArea())
+            }
+            else {
+                Log.e(TAG, "Cannot find suitable preview size")
+                return choices[0]
+            }
         }
 
         @JvmStatic fun newInstance(): CameraActivity = CameraActivity()
