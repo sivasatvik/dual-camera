@@ -14,6 +14,8 @@ import android.util.Log
 import android.util.Size
 import android.util.SparseIntArray
 import android.view.*
+import android.view.animation.Animation
+import android.view.animation.RotateAnimation
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -76,6 +78,8 @@ class CameraActivity : Fragment(), View.OnClickListener,
     private var mImageReader: ImageReader? = null
 
     private lateinit var mFile: File
+
+    private var mCurrentOrientation: Int = 0
 
     private var mCameraStateCallBack = object : CameraDevice.StateCallback(){
 
@@ -528,6 +532,49 @@ class CameraActivity : Fragment(), View.OnClickListener,
         }
     }
 
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+
+        val newOrientation = newConfig.orientation
+
+        val snapBtn = view!!.findViewById<View>(R.id.snap)
+
+        val views = arrayOf(snapBtn) //Add more views here if needed
+
+        Log.e(TAG, "onConfigurationChanged: before calling rotate function")
+
+        rotateInPlace(newOrientation, views)
+    }
+
+    private fun rotateInPlace(orientation: Int, views: Array<View>){
+        var start = mCurrentOrientation
+        var end = orientation
+        var min = Math.min(start, end)
+
+        if(Math.abs(end - start) > HALF_CIRCLE){
+            if(min == start){
+                start += FULL_CIRCLE
+            }
+            else{
+                end += FULL_CIRCLE
+            }
+        }
+
+        mCurrentOrientation = orientation
+
+        val ani = RotateAnimation(start.toFloat(), end.toFloat(), Animation.RELATIVE_TO_SELF, 0.5f,
+            Animation.RELATIVE_TO_SELF, 0.5f)
+
+        ani.fillAfter = true
+        ani.duration = 200
+
+        Log.e(TAG, "onConfigurationChanged: before starting animation")
+
+        for(view in views){
+            view.startAnimation(ani)
+        }
+    }
+
     companion object{
 
         private val ORIENTATIONS = SparseIntArray()
@@ -555,6 +602,10 @@ class CameraActivity : Fragment(), View.OnClickListener,
         private const val MAX_PREVIEW_WIDTH = 1920
 
         private const val MAX_PREVIEW_HEIGHT = 1080
+
+        private const val HALF_CIRCLE = 180
+
+        private const val FULL_CIRCLE = 360
 
         @JvmStatic private fun chooseOptimalSize(
             choices: Array<Size>,
