@@ -229,6 +229,10 @@ class CameraActivity : Fragment(), View.OnClickListener,
         try{
             for(cameraId in manager.cameraIdList) {
                 val characteristics = manager.getCameraCharacteristics(cameraId)
+                val cameraType = characteristics.get(CameraCharacteristics.LENS_FACING)
+                if(cameraType != null && cameraType != CameraCharacteristics.LENS_FACING_FRONT){
+                    continue
+                }
                 val map = characteristics.get(
                     CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP) ?: continue
 
